@@ -60,9 +60,9 @@ if [ $# -gt 0 ]; then
   if [ $# -gt 0 ]; then
     version="${1}"; shift
   elif [ "${#grep_args[@]}" -lt 1 ]; then
-    version="$(list-remote-versions "$product" "$version" | tail -n1)"
+    version="$(list-remote-versions "$product" | tail -n1)"
   else
-    version="$(list-remote-versions "$product" "$version" | grep -v "${grep_args[@]}")"
+    version="$(list-remote-versions "$product" | grep -v "${grep_args[@]}" | tail -n1)"
   fi
 
   install-product "$product" "$version"
