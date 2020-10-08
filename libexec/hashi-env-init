@@ -41,7 +41,7 @@ if [ -z "$shell" ]; then
   shell="${shell##*/}"
 fi
 
-root="${0%/*}/.."
+root="$(expand-path "${BASH_SOURCE[0]%/*}/..")"
 
 if [ -z "$print" ]; then
   case "$shell" in
@@ -87,9 +87,11 @@ fi
 case "$shell" in
   fish )
     echo "set -gx HASHIENV_SHELL '$shell'"
+    echo "set -Ux fish_user_paths '${root}/shims' \$fish_user_paths"
     ;;
   * )
     echo "export HASHIENV_SHELL='$shell'"
+    echo "export PATH=\"${root}/shims:\$PATH\""
     ;;
 esac
 
