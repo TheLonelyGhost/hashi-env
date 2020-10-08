@@ -5,6 +5,11 @@ if [ -n "${HASHIENV_DEBUG:-}" ]; then
   set -x
 fi
 
+if [ "${1:-}" == "--complete" ]; then
+  echo --complete
+  exit
+fi
+
 SHIM_PATH="${HASHIENV_ROOT}/shims"
 # a semaphore to prevent concurrency problems
 PROTOTYPE_SHIM_PATH="${SHIM_PATH}/.hashi-env-shim"

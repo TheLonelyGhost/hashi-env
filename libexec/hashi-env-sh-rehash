@@ -6,7 +6,7 @@ if [ -n "${HASHIENV_DEBUG:-}" ]; then
 fi
 
 # Provide hashi-env completions
-if [ "$1" = "--complete" ]; then
+if [ "${1:-}" = "--complete" ]; then
   exec hashi-env-rehash --complete
 fi
 
