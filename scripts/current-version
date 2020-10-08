@@ -4,6 +4,7 @@ source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
 
 current_version() {
 	local -r product="$1"
+	local -r global_version_file="${HASHIENV_ROOT}/version"
 	local version=''
 
 	: ${version:=$(env-version "${product}")}
