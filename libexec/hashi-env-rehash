@@ -7,7 +7,7 @@ fi
 
 SHIM_PATH="${HASHIENV_ROOT}/shims"
 # a semaphore to prevent concurrency problems
-PROTOTYPE_SHIM_PATH="${SHIM_PATH}/.pyenv-shim"
+PROTOTYPE_SHIM_PATH="${SHIM_PATH}/.hashi-env-shim"
 
 acquire_lock() {
   # Ensure only one instance of hashi-env-rehash is running at a time by
@@ -68,7 +68,7 @@ SH
 }
 
 # If the contents of the prototype shim file differ from the contents
-# of the first shim in the shims directory, assume pyenv has been
+# of the first shim in the shims directory, assume hashi-env has been
 # upgraded and the existing shims need to be removed.
 remove_outdated_shims() {
   local shim

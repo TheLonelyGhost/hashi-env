@@ -14,9 +14,9 @@ fi
 
 COMMAND="${1}"; shift
 
-# Provide pyenv completions
+# Provide hashi-env completions
 if [ "$COMMAND" = "--complete" ]; then
-  exec pyenv-commands
+  exec hashi-env-commands
 fi
 
 COMMAND_PATH="$(command -v "hashi-env-$COMMAND" || command -v "hashi-env-sh-$COMMAND")"

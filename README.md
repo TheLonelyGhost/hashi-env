@@ -145,10 +145,10 @@ This will get you going with the latest version of hashi-env and make it easy to
    echo -e 'if command -v hashi-env 1>/dev/null 2>&1; then\n  eval "$(hashi-env init -)"\nfi' >> ~/.bash_profile
    ```
    - **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
-   - **fish note**: Use `hashi-env init - | source` instead of `eval (pyenv init -)`.
+   - **fish note**: Use `hashi-env init - | source` instead of `eval (hashi-env init -)`.
    - **Ubuntu and Fedora note**: Modify your `~/.bashrc` file instead of `~/.bash_profile`.
 
-   **General warning**: There are some systems where the `BASH_ENV` variable is configured to point to `.bashrc`. On such systems you should almost certainly put the above mentioned line `eval "$(hashi-env init -)"` into `.bash_profile`, and **not** into `.bashrc`. Otherwise you may observe strange behaviour, such as `pyenv` getting into an infinite loop. See [pyenv/pyenv#264](https://github.com/pyenv/pyenv/issues/264) for details.
+   **General warning**: There are some systems where the `BASH_ENV` variable is configured to point to `.bashrc`. On such systems you should almost certainly put the above mentioned line `eval "$(hashi-env init -)"` into `.bash_profile`, and **not** into `.bashrc`. Otherwise you may observe strange behaviour, such as `hashi-env` getting into an infinite loop. See [pyenv/pyenv#264](https://github.com/pyenv/pyenv/issues/264) for details.
 
 4. **Restart your shell so the path changes take effect.** You can now begin using hashi-env.
    ```sh

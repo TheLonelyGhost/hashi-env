@@ -17,7 +17,7 @@ if [ -n "$HASHIENV_DEBUG" ]; then
   set -x
 fi
 
-# Provide pyenv completions
+# Provide hashi-env completions
 if [ "$1" = "--complete" ]; then
   echo --usage
   exec hashi-env-commands
