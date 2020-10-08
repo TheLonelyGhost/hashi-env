@@ -11,6 +11,10 @@ if [ -n "${HASHIENV_DEBUG:-}" ]; then
 fi
 
 # Provide hashi-env completions
+grep_args=()
+beta=
+alpha=
+rc=
 for arg; do
   case "$arg" in
   --complete )
@@ -19,6 +23,21 @@ for arg; do
     printf '%s\n' "${products[@]}"
     exit
     ;;
+  --alpha|--all )
+    alpha=1
+    beta=1
+    rc=1
+    shift
+    ;;
+  --beta )
+    beta=1
+    rc=1
+    shift
+    ;;
+  --rc )
+    rc=1
+    shift
+    ;;
   --help|-h )
     hashi-env-help install >&2
     exit
@@ -26,12 +45,24 @@ for arg; do
   esac
 done
 
+if [ -z "$alpha" ]; then
+  grep_args=("${grep_args[@]}" -e '-alpha')
+fi
+if [ -z "$beta" ]; then
+  grep_args=("${grep_args[@]}" -e '-beta')
+fi
+if [ -z "$rc" ]; then
+  grep_args=("${grep_args[@]}" -e '-rc')
+fi
+
 if [ $# -gt 0 ]; then
   product="$1"; shift
   if [ $# -gt 0 ]; then
     version="${1}"; shift
+  elif [ "${#grep_args[@]}" -lt 1 ]; then
+    version="$(list-remote-versions "$product" "$version" | tail -n1)"
   else
-    version="$(list-remote-versions "$product" | tail -n1)"
+    version="$(list-remote-versions "$product" "$version" | grep -v "${grep_args[@]}")"
   fi
 
   install-product "$product" "$version"

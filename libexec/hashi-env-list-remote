@@ -15,10 +15,12 @@ grep_args=()
 beta=
 alpha=
 rc=
-for arg in "$@"; do
+for arg; do
   case "${arg,,}" in
-  --help|-h )
-    hashi-env-help list-remote >&2
+  --complete )
+    printf '%s\n' '--complete'
+    # All of the options for products
+    printf '%s\n' "${products[@]}"
     exit 0
     ;;
   --alpha|--all )
@@ -36,10 +38,8 @@ for arg in "$@"; do
     rc=1
     shift
     ;;
-  --complete )
-    printf '%s\n' '--complete'
-    # All of the options for products
-    printf '%s\n' "${products[@]}"
+  --help|-h )
+    hashi-env-help list-remote >&2
     exit 0
     ;;
   esac
