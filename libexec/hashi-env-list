@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Summary: List all HashiCorp product versions available to hashi-env
+# Usage: hashi-env versions
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+for arg; do
+  case "$arg" in
+  --complete )
+    printf '%s\n' "${products[@]}"
+    exit
+    ;;
+  -h|--help )
+    hashi-env-help list >&2
+    exit
+    ;;
+  esac
+done
+
+if [ $# -gt 0 ]; then
+  tool="$1"; shift
+  list-versions "$(product-directory "$tool")" "${tool}-"
+else
+  for tool in "${products[@]}"; do
+    if [ -z "$(list-versions "$(product-directory "$tool")" "${tool}-")" ]; then continue; fi
+
+    printf '============================\n'
+    printf '>>>  %s\n' "${tool^^}"
+
+    list-versions "$(product-directory "$tool")" "${tool}-"
+    printf '\n'
+  done
+fi

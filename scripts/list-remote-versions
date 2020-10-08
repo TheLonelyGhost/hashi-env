@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# Usage: list_remote_versions <product> [<partial_version>]
+#
+# $ list_remote_versions "program"
+# 1.5.0
+# 1.4.1
+# 1.4.0
+#
+list_remote_versions() {
+  local -r product="$1"
+  local -r partial="${2:-}"
+  local version
+
+  for version in `__parse_json_versions "$product" | semver-sort | tac`; do
+    if [[ "$version" == "$partial"* ]]; then
+      printf '%s\n' "$version"
+    fi
+  done
+}
+
+__parse_json_versions() {
+  local -r product="$1"
+  if has jq; then
+    jq -r ".[\"${product}\"].versions | keys | .[]" <"${HASHIENV_ROOT}/cache/releases.json"
+  else
+    exit 1
+  fi
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  if [ ! -e "${HASHIENV_ROOT}/cache/releases.json" ]; then
+    refresh-remote-cache
+  fi
+  list_remote_versions "$@"
+fi

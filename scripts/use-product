@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+use_hashicorp_product() {
+  local -r product="${1,,}"
+  local product_versions_var="${product^^}_VERSIONS"
+  product_versions_var="${product_versions_var//-/_}"
+  : ${!product_versions_var:=${BASE_DIR}/versions}
+  # If `product` is `terraform`, ^^^ would equate to `${TERRAFORM_VERSIONS:-${HOME}/.terraform-versions}`,
+  # ensuring that the default value is actually set to something sane.
+  local -r product_versions_location="${!product_versions_var}"
+  # This ^^^ gives us the value of the install location base directory in a more easily used variable
+
+  local -r version_prefix='v'
+  local -r version="$2"
+
+  local via=''
+  local version_wanted product_prefix reported
+
+  if [ ! -d "${product_versions_location}" ]; then
+    mkdir -p "${product_versions_location}"
+  fi
+
+  if [ -z "$version" ]; then
+    log-error "I do not know which ${product} version to load because one has not been specified!"
+    return 1
+  fi
+
+  version_wanted="${version_prefix}${version}"
+
+  product_prefix="$(semver-search "${product_versions_location}" "${product}-" "$version_wanted")"
+  reported="${product_prefix}"
+  product_prefix="${product_versions_location}/${product}-${version_prefix}${product_prefix}"
+
+  if [ ! -d "${product_prefix}" ]; then
+    log-error "Could not find ${product} ${version_prefix}${version} installed locally"
+    return 1
+  fi
+
+  if [ "${reported}" != "${version}" ]; then
+    log-info "Resolved ${product} '${version}' -> '${reported}'"
+  fi
+  path-add PATH "$product_prefix"
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  # We're executing this script, not sourcing it
+  use_hashicorp_product "$@"
+fi

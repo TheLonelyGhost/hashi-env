@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+remove_hashicorp_product() {
+  local -r product="${1,,}"
+  local product_versions_var="${product^^}_VERSIONS"
+  product_versions_var="${product_versions_var//-/_}"
+  : ${!product_versions_var:=${BASE_DIR}/versions}
+  # If `product` is `terraform`, ^^^ would equate to `${TERRAFORM_VERSIONS:-${HOME}/.terraform-versions}`,
+  # ensuring that the default value is actually set to something sane.
+  local -r product_versions_location="${!product_versions_var}"
+  # This ^^^ gives us the value of the install location base directory in a more easily used variable
+
+  local -r version_prefix='v'
+  local -r version="$2"
+
+  local -r install_dir="${product_versions_location}/${product}-${version_prefix}${version}"
+  local GO_OS
+  local GO_ARCH
+
+  if [ ! -d "${product_versions_location}" ]; then
+    mkdir -p "${product_versions_location}"
+  fi
+
+  if [ -z "$version" ]; then
+    log-error "Must specify version of ${product} to remove"
+    return 1
+  fi
+
+  if [ ! -e "$install_dir" ]; then
+    log-info "No ${product} ${version_prefix}${version} found in $(user-rel-path "${product_versions_location}"). Nothing to do."
+    return 0
+  fi
+
+  rm -rf "$install_dir"
+  log-info "Uninstalled ${product} ${version_prefix}${version}"
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  # We're executing this script, not sourcing it
+  set -euo pipefail
+  remove_hashicorp_product "$@"
+fi
+

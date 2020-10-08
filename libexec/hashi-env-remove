@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Summary: Uninstall specified HashiCorp product at given version
+# Usage: hashi-env remove <product> <version>
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+for arg; do
+  case "$arg" in
+  --complete )
+    printf '%s\n' '--complete'
+    # All of the options for products
+    printf '%s\n' "${products[@]}"
+    exit
+    ;;
+  --help|-h )
+    hashi-env-help install >&2
+    exit
+    ;;
+  esac
+done
+
+if [ $# -gt 1 ]; then
+  product="${1}"; shift
+  version="$(sed -e 's/^v//g' <<<"${1}")"; shift
+
+  exec remove-product "$product" "$version"
+else
+  hashi-env-help --usage remove >&2
+  exit 1
+fi
+

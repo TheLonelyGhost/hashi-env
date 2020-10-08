@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# Summary: List the currently used version of the given HashiCorp product
+# Usage: hashi-env local [--bare] [--complete] [--help|-h] [<product> [<desired-version>]]
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+bare=''
+for arg; do
+  case "$arg" in
+		--bare )
+			bare=1
+			shift
+			;;
+		--complete )
+			printf '%s\n' "${products[@]}"
+			exit
+			;;
+		-h|--help )
+			hashi-env-help global >&2
+			exit
+			;;
+  esac
+done
+
+version_and_source() {
+	local -r product="$1"
+	local version_var="${product^^}_VERSION"
+	version_var="${version_var//-/_}"
+	local version_file="$(expand-path "./.${product}-version")"
+	if [ -f "${version_file}" ]; then
+		version_file="$(find-up ".${product}-version" || true)"
+	fi
+	local -r global_version_file="${HASHIENV_ROOT}/version"
+
+	if env-version "${product}" 1>/dev/null; then
+		printf '%s %s\n' "$(env-version "${product}")" "$version_var"
+		return 0
+	elif local-version "${product}" 1>/dev/null; then
+		printf '%s %s\n' "$(local-version "${product}")" "$(user-rel-path "$(expand-path "$version_file")")"
+		return 0
+	elif global-version "${product}" 1>/dev/null; then
+		printf '%s %s\n' "$(global-version "${product}")" "$(user-rel-path "$(expand-path "$global_version_file")")"
+		return 0
+	fi
+	return 1
+}
+
+if [ $# -eq 0 ]; then
+  for product in "${products[@]}"; do
+		version_info=($(version_and_source "${product}"))
+		if [ ${#version_info} -gt 1 ]; then
+			version="$(sed -e 's/^v//g' <<<"${version_info[0]}")"
+			src="${version_info[1]}"
+		else
+			version=''
+			src=''
+		fi
+
+		if [ -n "$bare" ] || [ -z "${version:-}" ]; then
+			printf '%s: %s\n' "${product}" "${version:-<not set>}"
+		else
+			printf '%s: %s (by %s)\n' "${product}" "${version:-<not set>}" "${src:-<unknown>}"
+		fi
+  done
+	exit 0
+fi
+
+product="$1"; shift
+version="${1:-}"
+
+if ! grep -qFe " ${product} " <<<" ${products[*]} "; then
+	log-error "Invalid or unsupported HashiCorp product: ${product}"
+	exit 1
+fi
+
+if [ -z "$version" ]; then
+	version_info=($(version_and_source "${product}"))
+	if [ ${#version_info} -gt 1 ]; then
+		version="$(sed -e 's/^v//g' <<<"${version_info[0]}")"
+		src="${version_info[1]}"
+	else
+		version=''
+		src=''
+	fi
+
+	if [ -n "$bare" ] || [ -z "${version:-}" ]; then
+		printf '%s\n' "${version:-<not set>}"
+	else
+		printf '%s (by %s)\n' "${version:-<not set>}" "${src:-<unknown>}"
+	fi
+	if [ -z "$version" ]; then
+		exit 1
+	fi
+else
+	printf '%s\n' "${version}" > ./".${product}-version"
+fi

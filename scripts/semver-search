@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# DISCLAIMER: this was adapted from https://github.com/direnv/direnv/blob/3c5d9470b89b7933587bcf68d8a556a9a9a518e8/stdlib.sh
+
+# Usage: semver_search <directory> <folder_prefix> <partial_version>
+#
+# Search a directory for the highest version number in SemVer format (X.Y.Z).
+#
+# Examples:
+#
+# $ tree .
+# .
+# |-- dir
+#     |-- program-1.4.0
+#     |-- program-1.4.1
+#     |-- program-1.5.0
+# $ semver_search "dir" "program-" "1.4.0"
+# 1.4.0
+# $ semver_search "dir" "program-" "1.4"
+# 1.4.1
+# $ semver_search "dir" "program-" "1"
+# 1.5.0
+#
+semver_search() {
+  local version_dir=${1:-}
+  local prefix=${2:-}
+  local partial_version=${3:-}
+  # Look for matching versions in $version_dir path
+  # Strip possible "/" suffix from $version_dir, then use that to
+  # strip $version_dir/$prefix prefix from line.
+  # Sort by version: split by "." then reverse numeric sort for each piece of the version string
+  # The first one is the highest
+  find "$version_dir" -maxdepth 1 -mindepth 1 -type d -name "${prefix}${partial_version}*" \
+    | while IFS= read -r line; do echo "${line#${version_dir%/}/${prefix}}"; done \
+    | sort -t . -k 1,1rn -k 2,2rn -k 3,3rn \
+    | head -1
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  semver_search "$@"
+fi

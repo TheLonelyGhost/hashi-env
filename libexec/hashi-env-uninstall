@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Summary: Uninstall specified HashiCorp product at given version
+# Usage: hashi-env remove <product> <version>
+
+exec hashi-env-remove "$@"

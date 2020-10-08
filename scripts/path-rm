@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# DISCLAIMER: this was adapted from https://github.com/direnv/direnv/blob/3c5d9470b89b7933587bcf68d8a556a9a9a518e8/stdlib.sh
+
+# Usage: path_rm <varname> <pattern> [<pattern> ...]
+#
+# Removes directories that match any of the given shell patterns from
+# the <varname> environment variable. Order of the remaining directories is
+# preserved in the resulting <varname>.
+#
+# Bash pattern syntax:
+#   https://www.gnu.org/software/bash/manual/html_node/Pattern-Matching.html
+#
+# Example:
+#
+#   echo $PATH
+#   # output: /dontremove/me:/remove/me:/usr/local/bin/:...
+#   path_rm PATH '/remove/*'
+#   echo $PATH
+#   # output: /dontremove/me:/usr/local/bin/:...
+#
+path_rm() {
+  local path i discard var_name="$1"
+  # split existing paths into an array
+  declare -a path_array
+  IFS=: read -ra path_array <<<"${!1}"
+  shift
+
+  patterns=("$@")
+  results=()
+
+  # iterate over path entries, discard entries that match any of the patterns
+  for path in ${path_array[@]+"${path_array[@]}"}; do
+    discard=false
+    for pattern in ${patterns[@]+"${patterns[@]}"}; do
+      if [[ "$path" == +($pattern) ]]; then
+        discard=true
+        break
+      fi
+    done
+    if ! $discard; then
+      results+=("$path")
+    fi
+  done
+
+  # join the result paths
+  result=$(
+    IFS=:
+    echo "${results[*]}"
+  )
+
+  # and finally export back the result to the original variable
+  export "$var_name=$result"
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  path_rm "$@"
+fi

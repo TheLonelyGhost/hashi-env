@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Summary: List the globally-set version of the given HashiCorp product
+# Usage: hashi-env global [--bare] [--complete] [--help|-h] [<product> [<desired-version>]]
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+for arg; do
+  case "$arg" in
+		--bare )
+			# noop, but flag is here for consistency with the `hashi-env local` equivalent
+			shift
+			;;
+		--complete )
+			printf '%s\n' "${products[@]}"
+			exit
+			;;
+		-h|--help )
+			hashi-env-help global >&2
+			exit
+			;;
+  esac
+done
+
+if [ $# -eq 0 ]; then
+  for product in "${products[@]}"; do
+		version="$(global-version "${product}" 2>/dev/null | sed -e 's/^v//g' || true)"
+		printf '%s: %s\n' "${product}" "${version:-<not set>}"
+		version=''
+  done
+	exit 0
+fi
+
+product="$1"; shift
+version="${1:-}"
+
+if ! grep -qFe " ${product} " <<<" ${products[*]} "; then
+	log-error "Invalid or unsupported HashiCorp product: ${product}"
+	exit 1
+fi
+
+if [ -z "$version" ]; then
+	version="$(global-version "${product}" 2>/dev/null | sed -e 's/^v//g' || true)"
+	printf '%s\n' "${version:-<not set>}"
+	if [ -z "$version" ]; then
+		exit 1
+	fi
+else
+	sed -i '' -e "/^${product} .*/d" "${HASHIENV_ROOT}/version"
+	printf '%s %s\n' "${product}" "${version}" >> "${HASHIENV_ROOT}/version"
+fi

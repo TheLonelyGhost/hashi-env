@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+if [ "$1" = "--complete" ]; then
+  exec hashi-env-rehash --complete
+fi
+
+shell="$(basename "${PYENV_SHELL:-$SHELL}")"
+
+# When pyenv shell integration is enabled, delegate to pyenv-rehash,
+# then tell the shell to empty its command lookup cache.
+hashi-env-rehash
+
+case "$shell" in
+fish )
+  # no rehash support
+  ;;
+* )
+  echo "hash -r 2>/dev/null || true"
+  ;;
+esac
+

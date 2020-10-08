@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+local_version() {
+	local -r product="$1"
+	local version_file="$(expand-path "./.${product}-version")"
+	if [ -f "${version_file}" ]; then
+		version_file="$(find-up ".${product}-version" || true)"
+	fi
+	local version=''
+
+	if [ -r "${version_file}" ]; then
+		version=$(cat "$version_file")
+	fi
+
+	if [ -z "${version}" ]; then
+		return 1
+	fi
+	printf '%s\n' "$version"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+	set -euo pipefail
+
+	local_version "$@"
+fi

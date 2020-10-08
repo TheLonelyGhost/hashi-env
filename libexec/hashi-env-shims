@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Summary: List existing hashi-env shims
+# Usage: hashi-env shims [--short]
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+	set -x
+fi
+
+if [ "${1:-}" = "--complete" ]; then
+	printf '%s\n' '--short'
+	exit 0
+fi
+
+shopt -s nullglob
+
+for command in "${HASHIENV_ROOT}/shims/"*; do
+	if [ "${1}" = "--short" ]; then
+		printf '%s\n' "${command##*/}"
+	else
+		printf '%s\n' "$(user-rel-path "$(expand-path "${command}")")"
+	fi
+done

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# DISCLAIMER: this was adapted from https://github.com/direnv/direnv/blob/3c5d9470b89b7933587bcf68d8a556a9a9a518e8/stdlib.sh
+
+# Usage: log_info [<message> ...]
+#
+# Logs an info message. Acts like echo,
+# but wraps output in the standard hashi-env log format
+# (controlled by $HASHIENV_LOG_FORMAT), and directs it
+# to stderr rather than stdout.
+#
+# Example:
+#
+#    log_info "Loading ..."
+#
+log_info() {
+  if [[ -n $HASHIENV_LOG_FORMAT ]]; then
+    local msg=$*
+    # shellcheck disable=SC2059,SC1117
+    printf "${HASHIENV_LOG_FORMAT}\n" "$msg" >&2
+  fi
+}
+
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  log_info "$@"
+fi

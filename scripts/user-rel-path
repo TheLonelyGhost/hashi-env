@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# DISCLAIMER: this was adapted from https://github.com/direnv/direnv/blob/3c5d9470b89b7933587bcf68d8a556a9a9a518e8/stdlib.sh
+
+# Usage: user_rel_path <abs_path>
+#
+# Transforms an absolute path <abs_path> into a user-relative path if
+# possible.
+#
+# Example:
+#
+#    echo $HOME
+#    # output: /home/user
+#    user_rel_path /home/user/my/project
+#    # output: ~/my/project
+#    user_rel_path /usr/local/lib
+#    # output: /usr/local/lib
+#
+user_rel_path() {
+  local abs_path=${1#-}
+
+  if [[ -z $abs_path ]]; then return; fi
+
+  if [[ -n $HOME ]]; then
+    local rel_path=${abs_path#$HOME}
+    if [[ $rel_path != "$abs_path" ]]; then
+      abs_path=~$rel_path
+    fi
+  fi
+
+  echo "$abs_path"
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  user_rel_path "$@"
+fi

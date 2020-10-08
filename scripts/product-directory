@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+product-home-var() {
+  local -r product="$1"
+  local product_versions_var="${product^^}_VERSIONS"
+  product_versions_var="${product_versions_var//-/_}"
+
+  printf '%s\n' "$product_versions_var"
+}
+
+product-home() {
+  local product_versions_var=$(product-home-var "$1")
+
+  printf '%s\n' "${!product_versions_var:-${BASE_DIR}/versions}"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+	set -euo pipefail
+
+	product-home "$@"
+fi

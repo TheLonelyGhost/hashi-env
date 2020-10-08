@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# Usage: refresh_remote_cache
+#
+# Refreshes the local cache of available HashiCorp product versions
+#
+refresh_remote_cache() {
+  mkdir -p "${HASHIENV_ROOT}/cache"
+  curl -SsLo "${HASHIENV_ROOT}/cache/releases.json" "https://releases.hashicorp.com/index.json"
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  refresh_remote_cache "$@"
+fi

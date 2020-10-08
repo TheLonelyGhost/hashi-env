@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# DISCLAIMER: this was adapted from https://github.com/direnv/direnv/blob/3c5d9470b89b7933587bcf68d8a556a9a9a518e8/stdlib.sh
+
+# Usage: find_up <filename>
+#
+# Outputs the path of <filename> when searched from the current directory up to
+# /. Returns 1 if the file has not been found.
+#
+# Example:
+#
+#    cd /usr/local/my
+#    mkdir -p project/foo
+#    touch bar
+#    cd project/foo
+#    find_up bar
+#    # output: /usr/local/my/bar
+#
+find_up() {
+  (
+    while true; do
+      if [[ -f $1 ]]; then
+        echo "$PWD/$1"
+        return 0
+      fi
+      if [[ $PWD == / ]] || [[ $PWD == // ]]; then
+        return 1
+      fi
+      cd ..
+    done
+  )
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  find_up "$@"
+fi

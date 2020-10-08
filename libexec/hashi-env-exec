@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Summary: Execute a shim under the context of the currently set version of the tool
+# Usage: hashi-env exec
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+if [ $# -lt 1 ]; then
+	hashi-env-help --usage exec >&2
+	exit 1
+fi
+product="$1"; shift
+
+case "$product" in
+	-h|--help )
+		hashi-env-help exec >&2
+		exit 0
+		;;
+	--complete )
+		printf '%s\n' "${products[@]}"
+		exit 0
+		;;
+esac
+version="$(current-version "${product}" | sed -e 's/^v//g')"
+
+if [ "${version,,}" != "system" ]; then
+	# use version: ${product}
+	target_dir="$(product-directory "${product}")/${product}-v${version}"
+
+	if [ ! -e "${target_dir}" ]; then
+		log-error "No version ${version} of ${product} is installed. Please install it with \`hashi-env install ${product} ${version}' and try again"
+		log-error "DEBUG: $(user-rel-path "$(expand-path "${target_dir}")")"
+		exit 1
+	fi
+
+	PATH="${target_dir}:${PATH}"
+fi
+
+exec "${product}" "$@"

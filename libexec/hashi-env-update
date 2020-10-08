@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Summary: Updates the cached list of HashiCorp product versions available
+# Usage: hashi-env update [--help|-h] [--complete]
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+for arg; do
+  case "$arg" in
+		--complete )
+			exit
+			;;
+		-h|--help )
+			hashi-env-help update >&2
+			exit
+			;;
+  esac
+done
+
+log-info "Fetching from https://releases.hashicorp.com/ ..."
+refresh-remote-cache
+
+give-feedback() {
+	local -r product="$1"
+	local -r local="$(list-versions "$(product-directory "${product}")" "${product}-v" | tail -n1)"
+	local -r remote="$(list-remote-versions "$product" | grep -v -e '-alpha' -e '-beta' -e '-rc' | tail -n1)"
+
+	if [ -n "$local" ] && [ "$local" != "$remote" ]; then
+		log-info "New version of ${product} is available! (${local} -> ${remote})"
+	fi
+}
+
+# Give user feedback on what needs to be updated
+if [ $# -gt 0 ]; then
+	product="${1}"; shift
+	give-feedback "${product}"
+else
+	for product in "${products[@]}"; do
+		give-feedback "${product}"
+	done
+fi

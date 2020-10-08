@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Usage: hashi-env completions <command> [arg1 arg2...]
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+if [ $# -lt 1 ]; then
+  hashi-env-help --usage completions >&2
+  exit 1
+fi
+
+COMMAND="${1}"; shift
+
+# Provide pyenv completions
+if [ "$COMMAND" = "--complete" ]; then
+  exec pyenv-commands
+fi
+
+COMMAND_PATH="$(command -v "hashi-env-$COMMAND" || command -v "hashi-env-sh-$COMMAND")"
+
+# --help is provided automatically
+echo --help
+
+if grep -iE "^([#%]|--|//) provide hashi-env completions" "$COMMAND_PATH" >/dev/null; then
+  shift
+  exec "$COMMAND_PATH" --complete "$@"
+fi

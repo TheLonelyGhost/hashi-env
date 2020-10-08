@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# DISCLAIMER: this was adapted from https://github.com/direnv/direnv/blob/3c5d9470b89b7933587bcf68d8a556a9a9a518e8/stdlib.sh
+
+# Usage: log_error [<message> ...]
+#
+# Logs an error message. Acts like echo,
+# but wraps output in the standard hashi-env log format
+# (controlled by $HASHIENV_LOG_FORMAT), and directs it
+# to stderr rather than stdout.
+#
+# Example:
+#
+#    log_error "Unable to find specified directory!"
+
+log_error() {
+  if [[ -n $HASHIENV_LOG_FORMAT ]]; then
+    local msg=$*
+    # shellcheck disable=SC2059,SC1117
+    printf "${color_error}${HASHIENV_LOG_FORMAT}${color_normal}\n" "$msg" >&2
+  fi
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  log_error "$@"
+fi

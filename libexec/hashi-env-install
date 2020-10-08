@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Summary: Install specified HashiCorp product at given version
+# Usage: hashi-env install <product> [<version>]
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+for arg; do
+  case "$arg" in
+  --complete )
+    printf '%s\n' '--complete'
+    # All of the options for products
+    printf '%s\n' "${products[@]}"
+    exit
+    ;;
+  --help|-h )
+    hashi-env-help install >&2
+    exit
+    ;;
+  esac
+done
+
+if [ $# -gt 0 ]; then
+  product="$1"; shift
+  if [ $# -gt 0 ]; then
+    version="${1}"; shift
+  else
+    version="$(list-remote-versions "$product" | tail -n1)"
+  fi
+
+  install-product "$product" "$version"
+  hashi-env rehash
+else
+  hashi-env-help --usage install >&2
+  exit 1
+fi

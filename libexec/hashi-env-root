@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Summary: Print the absolute path to this hashi-env installation
+printf '%s\n' "${HASHIENV_ROOT}"

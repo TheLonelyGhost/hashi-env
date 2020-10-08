@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+# DISCLAIMER: this was adapted from https://github.com/direnv/direnv/blob/3c5d9470b89b7933587bcf68d8a556a9a9a518e8/stdlib.sh
+
+# Usage: has <command>
+#
+# Returns 0 if the <command> is available. Returns 1 otherwise. It can be a
+# binary in the PATH or a shell function.
+#
+# Example:
+#
+#    if has curl; then
+#      echo "Yes we do"
+#    fi
+#
+has() {
+  type "$1" &>/dev/null
+}
+
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+  set -euo pipefail
+
+  has "$@"
+fi

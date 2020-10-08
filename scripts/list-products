@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+	set -euo pipefail
+	printf '%s\n' "${products[@]}"
+fi

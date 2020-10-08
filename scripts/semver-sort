@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+semver-sort() {
+  sort -t . -k 1,1rn -k 2,2rn -k 3,3rn
+}
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  set -euo pipefail
+  semver-sort
+fi

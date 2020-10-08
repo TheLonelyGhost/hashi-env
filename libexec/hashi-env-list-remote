@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# Summary: List downloadable versions of a given HashiCorp product
+# Usage: hashi-env list-remote [--alpha|--beta|--rc] <product> [<version>]
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
+set -euo pipefail
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  set -x
+fi
+
+# Provide hashi-env completions
+grep_args=()
+beta=
+alpha=
+rc=
+for arg in "$@"; do
+  case "${arg,,}" in
+  --help|-h )
+    hashi-env-help list-remote >&2
+    exit 0
+    ;;
+  --alpha|--all )
+    alpha=1
+    beta=1
+    rc=1
+    shift
+    ;;
+  --beta )
+    beta=1
+    rc=1
+    shift
+    ;;
+  --rc )
+    rc=1
+    shift
+    ;;
+  --complete )
+    printf '%s\n' '--complete'
+    # All of the options for products
+    printf '%s\n' "${products[@]}"
+    exit 0
+    ;;
+  esac
+done
+
+if [ -z "$alpha" ]; then
+  grep_args=("${grep_args[@]}" -e '-alpha')
+fi
+if [ -z "$beta" ]; then
+  grep_args=("${grep_args[@]}" -e '-beta')
+fi
+if [ -z "$rc" ]; then
+  grep_args=("${grep_args[@]}" -e '-rc')
+fi
+
+if [ $# -gt 0 ]; then
+  product="$1"; shift
+  version=
+  if [ $# -gt 0 ]; then
+    version="${1}"; shift
+  fi
+
+  if [ "${#grep_args[@]}" -lt 1 ]; then
+    exec list-remote-versions "$product" "$version"
+  else
+    list-remote-versions "$product" "$version" | grep -v "${grep_args[@]}"
+  fi
+else
+  hashi-env-help --usage list-remote >&2
+  exit 1
+fi
