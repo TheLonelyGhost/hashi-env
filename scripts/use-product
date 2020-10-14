@@ -6,7 +6,7 @@ use_hashicorp_product() {
   local -r product="${1,,}"
   local product_versions_var="${product^^}_VERSIONS"
   product_versions_var="${product_versions_var//-/_}"
-  : ${!product_versions_var:=${BASE_DIR}/versions}
+  : ${!product_versions_var:=${HASHIENV_ROOT}/versions}
   # If `product` is `terraform`, ^^^ would equate to `${TERRAFORM_VERSIONS:-${HOME}/.terraform-versions}`,
   # ensuring that the default value is actually set to something sane.
   local -r product_versions_location="${!product_versions_var}"
