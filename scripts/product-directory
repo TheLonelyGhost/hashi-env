@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+
 product-home-var() {
   local -r product="$1"
   local product_versions_var="${product^^}_VERSIONS"
@@ -11,7 +13,7 @@ product-home-var() {
 product-home() {
   local product_versions_var=$(product-home-var "$1")
 
-  printf '%s\n' "${!product_versions_var:-${BASE_DIR}/versions}"
+  printf '%s\n' "${!product_versions_var:-${HASHIENV_ROOT}/versions}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
