@@ -67,6 +67,11 @@ if [ $# -gt 0 ]; then
 
   install-product "$product" "$version"
   hashi-env rehash
+
+  if ! global-version "${product}" 2>/dev/null | sed -e 's/^v//g' 1>/dev/null; then
+    sed -i '' -e "/^${product} .*/d" "${HASHIENV_ROOT}/version"
+    printf '%s %s\n' "${product}" "${version}" >> "${HASHIENV_ROOT}/version"
+  fi
 else
   hashi-env-help --usage install >&2
   exit 1
