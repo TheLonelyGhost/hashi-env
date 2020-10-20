@@ -28,7 +28,7 @@ refresh-remote-cache
 
 give-feedback() {
 	local -r product="$1"
-	local -r local="$(list-versions "$(product-directory "${product}")" "${product}-v" | tail -n1)"
+	local -r local="$(list-versions "$(product-directory "${product}")" "${product}-v" | head -n1)"
 	local -r remote="$(list-remote-versions "$product" | grep -v -e '-alpha' -e '-beta' -e '-rc' | tail -n1)"
 
 	if [ -n "$local" ] && [ "$local" != "$remote" ]; then
