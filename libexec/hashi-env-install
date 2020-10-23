@@ -58,11 +58,20 @@ fi
 if [ $# -gt 0 ]; then
   product="$1"; shift
   if [ $# -gt 0 ]; then
-    version="${1}"; shift
+    if [ "${#grep_args[@]}" -lt 1 ]; then
+      version="$(list-remote-versions "$product" | grep -Fe "${1}" | tail -n1)"
+    else
+      version="$(list-remote-versions "$product" | grep -Fe "${1}" | grep -v "${grep_args[@]}" | tail -n1)"
+    fi
   elif [ "${#grep_args[@]}" -lt 1 ]; then
     version="$(list-remote-versions "$product" | tail -n1)"
   else
     version="$(list-remote-versions "$product" | grep -v "${grep_args[@]}" | tail -n1)"
+  fi
+
+  if [ -z "${version}" ]; then
+    log-error "No version of $product found matching version '$1'"
+    exit 1
   fi
 
   install-product "$product" "$version"

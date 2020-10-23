@@ -12,10 +12,9 @@ install_hashicorp_product() {
   local -r product_versions_location="${!product_versions_var}"
   # This ^^^ gives us the value of the install location base directory in a more easily used variable
 
-  local -r version_prefix='v'
   local -r version="$2"
 
-  local -r install_dir="${product_versions_location}/${product}-${version_prefix}${version}"
+  local -r install_dir="${product_versions_location}/${product}-v${version}"
   local GO_OS
   local GO_ARCH
 
@@ -29,10 +28,10 @@ install_hashicorp_product() {
   fi
 
   if [ -e "$install_dir" ]; then
-    log-info "Found ${product} ${version_prefix}${version} in $(user-rel-path "${product_versions_location}")"
+    log-info "Found ${product} v${version} in $(user-rel-path "${product_versions_location}")"
     return 0
   fi
-  log-info "$(printf 'Downloading %s (%s) to %s (from %q)\n' "${product}" "${version_prefix}${version}" "$(user-rel-path "${product_versions_location}")" "${product_versions_var}")"
+  log-info "$(printf 'Downloading %s (%s) to %s (from %q)\n' "${product}" "v${version}" "$(user-rel-path "${product_versions_location}")" "${product_versions_var}")"
 
   if uname -a 2>/dev/null | grep -qe 'Darwin' &>/dev/null; then
     GO_OS='darwin'
