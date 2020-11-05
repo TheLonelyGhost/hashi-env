@@ -26,6 +26,7 @@ __parse_json_versions() {
   if has jq; then
     jq -r ".[\"${product}\"].versions | keys | .[]" <"${HASHIENV_ROOT}/cache/releases.json"
   else
+    log-error 'Missing dependency: jq'
     exit 1
   fi
 }
