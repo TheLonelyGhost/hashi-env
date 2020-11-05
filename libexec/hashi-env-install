@@ -4,6 +4,12 @@
 
 source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
 
+debug() {
+  if [ -n "${HASHIENV_DEBUG:-}" ]; then
+    tee >&2
+  fi
+}
+
 set -euo pipefail
 
 if [ -n "${HASHIENV_DEBUG:-}" ]; then
@@ -16,7 +22,7 @@ beta=
 alpha=
 rc=
 for arg; do
-  case "$arg" in
+  case "${arg,,}" in
   --complete )
     printf '%s\n' -- '--complete'
     printf '%s\n' -- '--alpha' '--beta' '--rc' '--all'
@@ -28,6 +34,8 @@ for arg; do
     alpha=1
     beta=1
     rc=1
+
+    echo 'FOUND ALPHA!' | debug | cat 1>/dev/null
     shift
     ;;
   --beta )
@@ -56,18 +64,38 @@ if [ -z "$rc" ]; then
   grep_args=("${grep_args[@]}" -e '-rc')
 fi
 
-if [ $# -gt 0 ]; then
+get-version() {
+  local product version
   product="$1"; shift
+
   if [ $# -gt 0 ]; then
     if [ "${#grep_args[@]}" -lt 1 ]; then
-      version="$(list-remote-versions "$product" | grep -Fe "${1}" | tail -n1)"
+      version="$(list-remote-versions "$product" "$1" | tail -n1)"
     else
-      version="$(list-remote-versions "$product" | grep -Fe "${1}" | grep -v "${grep_args[@]}" | tail -n1)"
+      version="$(list-remote-versions "$product" "$1" | grep -v "${grep_args[@]}" | tail -n1)"
     fi
   elif [ "${#grep_args[@]}" -lt 1 ]; then
     version="$(list-remote-versions "$product" | tail -n1)"
   else
     version="$(list-remote-versions "$product" | grep -v "${grep_args[@]}" | tail -n1)"
+  fi
+
+  if [ -z "$version" ]; then
+    return 1
+  else
+    printf '%s\n' "$version"
+    return 0
+  fi
+}
+
+if [ $# -gt 0 ]; then
+  product="$1"; shift
+  version="$(get-version "$product" "$@" || true)"
+
+  if [ -z "${version}" ]; then
+    log-info "Refreshing cache from https://releases.hashicorp.com/ ..."
+    refresh-remote-cache
+    version="$(get-version "$product" "$@" || true)"
   fi
 
   if [ -z "${version}" ]; then
