@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Summary: Install specified HashiCorp product at given version
-# Usage: hashi-env install <product> [<version>]
+# Usage: hashi-env install [--alpha|--beta|--rc|--all]<product> [<version>]
 
 source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
 
@@ -18,7 +18,8 @@ rc=
 for arg; do
   case "$arg" in
   --complete )
-    printf '%s\n' '--complete'
+    printf '%s\n' -- '--complete'
+    printf '%s\n' -- '--alpha' '--beta' '--rc' '--all'
     # All of the options for products
     printf '%s\n' "${products[@]}"
     exit
