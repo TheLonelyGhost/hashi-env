@@ -99,7 +99,11 @@ if [ $# -gt 0 ]; then
   fi
 
   if [ -z "${version}" ]; then
-    log-error "No version of $product found matching version '$1'"
+    if [ -n "$1" ]; then
+      log-error "No version of $product found matching version '${1}'"
+    else
+      log-error "No version of $product found matching any version"
+    fi
     exit 1
   fi
 
