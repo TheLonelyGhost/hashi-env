@@ -36,7 +36,7 @@ expand_path() {
 : ${HASHIENV_ROOT:=$(expand_path ${BASH_SOURCE[0]%/*})}
 color_normal=$(tput sgr0)
 color_error=$(tput setaf 1)
-products=('packer' 'terraform' 'vault' 'consul' 'nomad' 'boundary' 'waypoint' 'envconsul' 'consul-template')
+products=('packer' 'terraform' 'vault' 'consul' 'nomad' 'boundary' 'waypoint' 'envconsul' 'consul-template' 'levant')
 export HASHIENV_ROOT
 
 : ${DEFAULT_VERSIONS_DIR:=${HASHIENV_ROOT}/versions}
@@ -48,6 +48,7 @@ export HASHIENV_ROOT
 : ${VAULT_VERSIONS:=$DEFAULT_VERSIONS_DIR}
 : ${CONSUL_TEMPLATE_VERSIONS:=$DEFAULT_VERSIONS_DIR}
 : ${ENVCONSUL_VERSIONS:=$DEFAULT_VERSIONS_DIR}
-export TERRAFORM_VERSIONS PACKER_VERSIONS CONSUL_VERSIONS NOMAD_VERSIONS VAULT_VERSIONS CONSUL_TEMPLATE_VERSIONS ENVCONSUL_VERSIONS
+: ${LEVANT_VERSIONS:=$DEFAULT_VERSIONS_DIR}
+export TERRAFORM_VERSIONS PACKER_VERSIONS CONSUL_VERSIONS NOMAD_VERSIONS VAULT_VERSIONS CONSUL_TEMPLATE_VERSIONS ENVCONSUL_VERSIONS LEVANT_VERSIONS
 
 PATH="$(expand_path "$HASHIENV_ROOT/scripts"):${PATH}"
