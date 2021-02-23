@@ -14,7 +14,7 @@ list_remote_versions() {
   local -r partial="${2:-}"
   local version
 
-  for version in `__parse_json_versions "$product" | semver-sort | tac`; do
+  for version in `__parse_json_versions "$product" | semver-sort | perl -e "print reverse(<>)"`; do
     if [[ "$version" == "$partial"* ]]; then
       printf '%s\n' "$version"
     fi
