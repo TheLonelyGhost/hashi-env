@@ -61,7 +61,7 @@ install_hashicorp_product() {
     log-error "Failed to download ${product} ${verison_prefix}${version}"
     return 1
   fi
-  if has sha256sum && has awk; then
+  if has sha256sum && has awk && [ -z "${SKIP_CHECKSUMS:-}" ]; then
     if curl -fSLo "${tmpdir}/${product}_SHA256SUMS" "https://releases.hashicorp.com/${product}/${version}/${product}_${version}_SHA256SUMS"; then
       log-info "Checking download of ${product} against the posted checksum..."
       pushd "$tmpdir" 1>/dev/null 2>&1

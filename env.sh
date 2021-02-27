@@ -36,7 +36,18 @@ expand_path() {
 : ${HASHIENV_ROOT:=$(expand_path ${BASH_SOURCE[0]%/*})}
 color_normal=$(tput sgr0)
 color_error=$(tput setaf 1)
-products=('packer' 'terraform' 'vault' 'consul' 'nomad' 'boundary' 'waypoint' 'envconsul' 'consul-template' 'levant')
+products=(
+  packer
+  terraform
+  vault
+  consul
+  nomad
+  boundary
+  waypoint
+  envconsul
+  consul-template
+  levant
+)
 export HASHIENV_ROOT
 
 : ${DEFAULT_VERSIONS_DIR:=${HASHIENV_ROOT}/versions}
