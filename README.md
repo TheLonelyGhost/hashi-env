@@ -28,6 +28,7 @@ Works with:
 - GNU coreutils
 - curl
 - bash
+- *  If using MacOS you must use updated bash v4.x (brew install bash)
 
 ---
 
