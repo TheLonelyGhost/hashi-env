@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ "$1" = "--debug" ]; then
+  export HASHIENV_DEBUG=1
+  shift
+fi
+
+if [ -n "${HASHIENV_DEBUG:-}" ]; then
+  export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+  set -x
+fi
+
+abort() {
+  { if [ "$#" -eq 0 ]; then cat -
+    else echo "hashi-env: $*"
+    fi
+  } >&2
+  exit 1
+}
+
+source "$(dirname -- ${BASH_SOURCE[0]})/../env.sh"
+HASHIENV_ROOT="${HASHIENV_ROOT%/}"
+export HASHIENV_ROOT
+
+eval "$("${HASHIENV_ROOT}/scripts/path-add" PATH "${HASHIENV_ROOT}/libexec")"
+hash -r
+mkdir -p "${HASHIENV_ROOT}/versions"
+touch "${HASHIENV_ROOT}/version"
+mkdir -p "${HASHIENV_ROOT}/shims"
+
+# Check for help docs
+subcommand="$1"
+case "$subcommand" in
+  "" )
+    {
+      hashi-env---version
+      hashi-env---help
+    } | abort
+    ;;
+
+  -v | --version )
+    exec hashi-env-version
+    ;;
+
+   -h | --help )
+    exec hashi-env-help
+    ;;
+
+  * )
+    command_path="$(command -v "hashi-env-$subcommand" || true)"
+    if [ -z "$command_path" ]; then
+      if [ "$command" == "shell" ]; then
+        abort "shell integration not enabled. Run 'hashi-env init' for instructions."
+      else
+        abort "no such command '$subcommand'"
+      fi
+    fi
+
+  shift 1
+
+  if [ "$1" = --help ]; then
+    if [[ "$subcommand" == "sh-"* ]]; then
+      echo "hashi-env help \"$subcommand\""
+    else
+      exec hashi-env-help "$subcommand"
+    fi
+  else
+    exec "$command_path" "$@"
+  fi
+esac
